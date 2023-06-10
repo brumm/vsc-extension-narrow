@@ -1,0 +1,92 @@
+{
+  "name": "narrow",
+  "displayName": "narrow",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.79.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Narrow",
+      "properties": {
+        "narrow.useWordUnderCursorAsInitialSearchTerm": {
+          "order": 1,
+          "type": "boolean",
+          "default": true,
+          "description": "Use word under cursor as initial search term"
+        },
+        "narrow.sortOrder": {
+          "order": 2,
+          "type": "string",
+          "default": "default",
+          "description": "QuickPick sorts matches by some match score. This setting allows you to disable that sorting to preserve the source order of the file.",
+          "enumItemLabels": [
+            "VSC's Default Sort (by match score)",
+            "Source Order"
+          ],
+          "enum": [
+            "default",
+            "source"
+          ],
+          "enumDescriptions": [
+            "Uses QuickPick's default sorting by match score",
+            "Disables sorting to preserve source order of file"
+          ]
+        },
+        "narrow.cursorLocationAfterAccept": {
+          "order": 3,
+          "type": "string",
+          "default": "startOfLine",
+          "description": "This setting controls where the cursor is placed, after selecting a match",
+          "enumItemLabels": [
+            "Start of Line",
+            "Start of Line (Ignore Whitespace)",
+            "Start of Match"
+          ],
+          "enum": [
+            "startOfLine",
+            "startOfLineIgnoreWhitespace",
+            "startOfMatch"
+          ],
+          "enumDescriptions": [
+            "Moves the cursor to the start of the selected line",
+            "Moves the cursor to the start of the text of the selected line, ignoring whitespace",
+            "Moves the cursor to the start of the match"
+          ]
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "narrow.narrow-file",
+        "title": "Narrow Current File"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.79.0",
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.3",
+    "@vscode/test-electron": "^2.2.0"
+  }
+}

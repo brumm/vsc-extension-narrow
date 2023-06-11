@@ -106,6 +106,8 @@ export function activate(context: ExtensionContext) {
 
       quickPick.busy = false
 
+      let isFirstActiveChange = true
+
       context.subscriptions.push(
         quickPick.onDidChangeActive(([item]) => {
           if (!editor || !item) {
@@ -124,10 +126,12 @@ export function activate(context: ExtensionContext) {
             endCharacter,
           )
 
-          if (quickPick.value) {
+          if (!isFirstActiveChange) {
             editor.setDecorations(decorationType, [lineRange])
             editor.revealRange(lineRange, TextEditorRevealType.InCenter)
           }
+
+          isFirstActiveChange = false
         }),
 
         quickPick.onDidChangeSelection(([item]) => {

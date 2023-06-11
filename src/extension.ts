@@ -97,6 +97,13 @@ export function activate(context: ExtensionContext) {
         }))
         .filter(({ label }) => Boolean(label.trim()))
 
+      const initialActiveItem = quickPick.items.find(
+        (item) => item.index === editor.selection.active.line,
+      )
+      if (initialActiveItem) {
+        quickPick.activeItems = [initialActiveItem]
+      }
+
       quickPick.busy = false
 
       context.subscriptions.push(

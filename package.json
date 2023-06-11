@@ -2,6 +2,8 @@
   "name": "narrow",
   "displayName": "narrow",
   "description": "",
+  "repository": "https://github.com/brumm/vsc-extension-narrow",
+  "publisher": "brumm",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.79.0"

@@ -95,7 +95,7 @@ export function activate(context: ExtensionContext) {
           label: line,
           index,
         }))
-        .filter(({ label }) => Boolean(label))
+        .filter(({ label }) => Boolean(label.trim()))
 
       quickPick.busy = false
 

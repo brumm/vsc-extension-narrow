@@ -4,7 +4,8 @@ Code navigation inspired by [atom-narrow](https://github.com/t9md/atom-narrow)
 
 Running `narrow.narrow-file` shows a QuickPick listing all lines in your current file. Type to narrow down to matching lines. Hit enter to move your cursor to the selected line.
 
-https://github.com/brumm/vsc-extension-narrow/assets/170500/ae6a74f2-6081-43e0-96f1-4c5f62fc25de
+![Screen Recording 2023-06-10 at 16 24 58](https://github.com/brumm/vsc-extension-narrow/assets/170500/27022fb7-f522-4a49-9a26-e3c1af4c76d7)
+
 
 ## Keyboard Shortcuts
 

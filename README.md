@@ -9,7 +9,7 @@ https://github.com/brumm/vsc-extension-narrow/assets/170500/ae6a74f2-6081-43e0-9
 ## Keyboard Shortcuts
 
 Narrow does not assign keyboard shortcuts by default.
-Open your keyboard shortcuts json (`Preferences: OpenKeyboard Shortcuts (JSON)`) and paste this snippet to get started:
+Open your keyboard shortcuts json (`Preferences: Open Keyboard Shortcuts (JSON)`) and paste this snippet to get started:
 
 ```json
 {

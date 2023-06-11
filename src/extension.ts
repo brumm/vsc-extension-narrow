@@ -177,7 +177,10 @@ export function activate(context: ExtensionContext) {
         quickPick.onDidHide(() => {
           quickPick.dispose()
           editor.setDecorations(decorationType, [])
-          editor.revealRange(newSelection, TextEditorRevealType.InCenter)
+
+          if (editor.selection.isEqual(selectionAtActivation)) {
+            editor.revealRange(editor.selection, TextEditorRevealType.InCenter)
+          }
         }),
       )
     }),

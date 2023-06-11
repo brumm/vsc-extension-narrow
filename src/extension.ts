@@ -33,7 +33,7 @@ const getOptions = () => {
       (config.get<Options['shouldSortByLabel']>('sortOrder') || 'default') ===
       'default',
     useWordUnderCursorAsInitialSearchTerm:
-      config.get<boolean>('useWordUnderCursorAsInitialSearchTerm') || true,
+      config.get<boolean>('useWordUnderCursorAsInitialSearchTerm') ?? true,
     cursorLocationAfterAccept: (config.get<Options['shouldSortByLabel']>(
       'cursorLocationAfterAccept',
     ) || 'startOfLine') as Options['cursorLocationAfterAccept'],

@@ -171,6 +171,7 @@ export function activate(context: ExtensionContext) {
 
         quickPick.onDidAccept(() => {
           editor.selection = newSelection
+          editor.revealRange(editor.selection, TextEditorRevealType.InCenter)
           quickPick.hide()
         }),
 

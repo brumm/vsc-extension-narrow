@@ -117,8 +117,10 @@ export function activate(context: ExtensionContext) {
             endCharacter,
           )
 
-          editor.setDecorations(decorationType, [lineRange])
-          editor.revealRange(lineRange, TextEditorRevealType.InCenter)
+          if (quickPick.value) {
+            editor.setDecorations(decorationType, [lineRange])
+            editor.revealRange(lineRange, TextEditorRevealType.InCenter)
+          }
         }),
 
         quickPick.onDidChangeSelection(([item]) => {

@@ -128,7 +128,7 @@ export function activate(context: ExtensionContext) {
 
           if (!isFirstActiveChange) {
             editor.setDecorations(decorationType, [lineRange])
-            editor.revealRange(lineRange, TextEditorRevealType.InCenter)
+            editor.revealRange(lineRange, TextEditorRevealType.Default)
           }
 
           isFirstActiveChange = false
@@ -171,7 +171,7 @@ export function activate(context: ExtensionContext) {
 
         quickPick.onDidAccept(() => {
           editor.selection = newSelection
-          editor.revealRange(editor.selection, TextEditorRevealType.InCenter)
+          editor.revealRange(editor.selection, TextEditorRevealType.Default)
           quickPick.hide()
         }),
 
@@ -180,7 +180,7 @@ export function activate(context: ExtensionContext) {
           editor.setDecorations(decorationType, [])
 
           if (editor.selection.isEqual(selectionAtActivation)) {
-            editor.revealRange(editor.selection, TextEditorRevealType.InCenter)
+            editor.revealRange(editor.selection, TextEditorRevealType.Default)
           }
         }),
       )

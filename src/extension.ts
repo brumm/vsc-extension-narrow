@@ -158,6 +158,13 @@ export function activate(context: ExtensionContext) {
                 .toLocaleLowerCase()
                 .indexOf(quickPick.value.toLocaleLowerCase())
 
+              if (matchPosition === -1) {
+                // fall back to start of line
+                anchorCharacter = 0
+                activeCharacter = 0
+                break
+              }
+
               anchorCharacter = matchPosition
               activeCharacter = matchPosition
               break

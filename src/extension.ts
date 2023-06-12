@@ -154,7 +154,10 @@ export function activate(context: ExtensionContext) {
               break
             }
             case 'startOfMatch': {
-              const matchPosition = item.label.indexOf(quickPick.value)
+              const matchPosition = item.label
+                .toLocaleLowerCase()
+                .indexOf(quickPick.value.toLocaleLowerCase())
+
               anchorCharacter = matchPosition
               activeCharacter = matchPosition
               break

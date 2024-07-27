@@ -52,6 +52,7 @@ export function activate(context: ExtensionContext) {
       }
 
       const eol = editor.document.eol === EndOfLine.LF ? '\n' : '\r\n'
+      const REVEAL_TYPE = TextEditorRevealType.InCenter
 
       const selectionAtActivation = editor.selection
       let newSelection = selectionAtActivation
@@ -128,7 +129,7 @@ export function activate(context: ExtensionContext) {
 
           if (!isFirstActiveChange) {
             editor.setDecorations(decorationType, [lineRange])
-            editor.revealRange(lineRange, TextEditorRevealType.Default)
+            editor.revealRange(lineRange, REVEAL_TYPE)
           }
 
           isFirstActiveChange = false
@@ -181,7 +182,7 @@ export function activate(context: ExtensionContext) {
 
         quickPick.onDidAccept(() => {
           editor.selection = newSelection
-          editor.revealRange(editor.selection, TextEditorRevealType.Default)
+          editor.revealRange(editor.selection, REVEAL_TYPE)
           quickPick.hide()
         }),
 
@@ -190,7 +191,7 @@ export function activate(context: ExtensionContext) {
           editor.setDecorations(decorationType, [])
 
           if (editor.selection.isEqual(selectionAtActivation)) {
-            editor.revealRange(editor.selection, TextEditorRevealType.Default)
+            editor.revealRange(editor.selection, REVEAL_TYPE)
           }
         }),
       )

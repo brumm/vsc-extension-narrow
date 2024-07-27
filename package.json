@@ -60,6 +60,30 @@
             "Moves the cursor to the start of the text of the selected line, ignoring whitespace",
             "Moves the cursor to the start of the match"
           ]
+        },
+        "narrow.activeLineViewportRevealType": {
+          "order": 4,
+          "type": "string",
+          "default": "InCenter",
+          "description": "This setting controls how the active line is revealed in the editor",
+          "enumItemLabels": [
+            "As little scrolling as possible",
+            "In center of viewport",
+            "In center if outside viewport",
+            "At top of viewport"
+          ],
+          "enum": [
+            "Default",
+            "InCenter",
+            "InCenterIfOutsideViewport",
+            "AtTop"
+          ],
+          "enumDescriptions": [
+            "The active line will be revealed with as little scrolling as possible",
+            "The active line will always be revealed in the center of the viewport",
+            "If the active line is outside the viewport, it will be revealed in the center of the viewport",
+            "The active line will always be revealed at the top of the viewport"
+          ]
         }
       }
     },

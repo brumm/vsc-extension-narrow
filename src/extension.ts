@@ -19,6 +19,11 @@ type Options = {
     | 'startOfLine'
     | 'startOfLineIgnoreWhitespace'
     | 'startOfMatch'
+  activeLineViewportRevealType:
+    | 'Default'
+    | 'InCenter'
+    | 'InCenterIfOutsideViewport'
+    | 'AtTop'
 }
 
 const decorationType = window.createTextEditorDecorationType({
@@ -38,6 +43,10 @@ const getOptions = () => {
       'cursorLocationAfterAccept',
       'startOfLine',
     ),
+    activeLineViewportRevealType: config.get(
+      'activeLineViewportRevealType',
+      'InCenter',
+    ),
   }
   return options as Options
 }
@@ -52,7 +61,8 @@ export function activate(context: ExtensionContext) {
 
       const options = getOptions()
       const eol = editor.document.eol === EndOfLine.LF ? '\n' : '\r\n'
-      const REVEAL_TYPE = TextEditorRevealType.InCenter
+      const REVEAL_TYPE =
+        TextEditorRevealType[options.activeLineViewportRevealType]
 
       const selectionAtActivation = editor.selection
       let newSelection = selectionAtActivation

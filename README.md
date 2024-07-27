@@ -22,4 +22,4 @@ Open your keyboard shortcuts json (`Preferences: Open Keyboard Shortcuts (JSON)`
 
 ## Options
 
-![Screenshot 2023-06-10 at 16 21 18](https://github.com/brumm/vsc-extension-narrow/assets/170500/c5869bcd-5db8-45b9-94fe-5dfac13404e9)
+![Screenshot 2024-07-27 at 15 30 10](https://github.com/user-attachments/assets/223aa684-3396-4728-b95b-fc98c778b1bb)

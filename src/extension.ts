@@ -28,29 +28,29 @@ const decorationType = window.createTextEditorDecorationType({
 
 const getOptions = () => {
   const config = workspace.getConfiguration('narrow')
-  const options: Options = {
-    shouldSortByLabel:
-      (config.get<Options['shouldSortByLabel']>('sortOrder') || 'default') ===
-      'default',
-    useWordUnderCursorAsInitialSearchTerm:
-      config.get<boolean>('useWordUnderCursorAsInitialSearchTerm') ?? true,
-    cursorLocationAfterAccept: (config.get<Options['shouldSortByLabel']>(
+  const options = {
+    shouldSortByLabel: config.get('sortOrder', 'default') === 'default',
+    useWordUnderCursorAsInitialSearchTerm: config.get(
+      'useWordUnderCursorAsInitialSearchTerm',
+      true,
+    ),
+    cursorLocationAfterAccept: config.get(
       'cursorLocationAfterAccept',
-    ) || 'startOfLine') as Options['cursorLocationAfterAccept'],
+      'startOfLine',
+    ),
   }
-  return options
+  return options as Options
 }
 
 export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand('narrow.narrow-file', () => {
-      const options = getOptions()
-
       const editor = window.activeTextEditor
       if (!editor) {
         return
       }
 
+      const options = getOptions()
       const eol = editor.document.eol === EndOfLine.LF ? '\n' : '\r\n'
       const REVEAL_TYPE = TextEditorRevealType.InCenter
 

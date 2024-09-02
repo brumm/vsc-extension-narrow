@@ -121,6 +121,11 @@ export function activate(context: ExtensionContext) {
 
       context.subscriptions.push(
         quickPick.onDidChangeActive(([item]) => {
+          if (isFirstActiveChange) {
+            isFirstActiveChange = false
+            return
+          }
+
           if (!editor || !item) {
             return
           }
@@ -137,10 +142,8 @@ export function activate(context: ExtensionContext) {
             endCharacter,
           )
 
-          if (!isFirstActiveChange) {
-            editor.setDecorations(decorationType, [lineRange])
-            editor.revealRange(lineRange, REVEAL_TYPE)
-          }
+          editor.setDecorations(decorationType, [lineRange])
+          editor.revealRange(lineRange, REVEAL_TYPE)
 
           isFirstActiveChange = false
         }),

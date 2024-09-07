@@ -91,6 +91,10 @@
       {
         "command": "narrow.narrow-file",
         "title": "Narrow Current File"
+      },
+      {
+        "command": "narrow.narrow-git",
+        "title": "Narrow Git Changes"
       }
     ]
   },
@@ -103,16 +107,20 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.81.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
+    "@types/vscode": "^1.81.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/test-electron": "^2.3.0",
     "eslint": "^8.50.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "typescript": "^5.2.0",
-    "@vscode/test-electron": "^2.3.0"
+    "typescript": "^5.2.0"
+  },
+  "dependencies": {
+    "parse-diff": "^0.11.1",
+    "simple-git": "^3.26.0"
   }
 }

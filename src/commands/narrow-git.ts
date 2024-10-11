@@ -1,4 +1,3 @@
-import { Change, NormalChange } from 'parse-diff'
 import simpleGit from 'simple-git'
 import {
   ExtensionContext,
@@ -61,10 +60,6 @@ async function narrowGitInner(context: ExtensionContext) {
   quickPick.show()
 
   const diffs = parseDiff(await repository.diff(['--unified=0', filePath]))
-  const changes = diffs.flatMap((diff) =>
-    diff.chunks.flatMap((chunk) => chunk.changes),
-  ) as unknown as Exclude<Change, NormalChange>[]
-
   const REVEAL_TYPE = TextEditorRevealType[options.activeLineViewportRevealType]
 
   const selectionAtActivation = editor.selection
@@ -85,14 +80,6 @@ async function narrowGitInner(context: ExtensionContext) {
             items.push({
               label: change.content.slice(1),
               iconPath: new ThemeIcon('diff-insert'),
-              index: change.ln - 1,
-            })
-            break
-          }
-          case 'del': {
-            items.push({
-              label: change.content.slice(1),
-              iconPath: new ThemeIcon('diff-remove'),
               index: change.ln - 1,
             })
             break

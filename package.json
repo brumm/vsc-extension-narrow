@@ -94,7 +94,7 @@
       },
       {
         "command": "narrow.narrow-git",
-        "title": "Narrow Git Changes"
+        "title": "Narrow Git Additions"
       }
     ]
   },

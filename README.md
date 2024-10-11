@@ -4,9 +4,13 @@ Code navigation inspired by [atom-narrow](https://github.com/t9md/atom-narrow)
 
 Running `narrow.narrow-file` shows a QuickPick listing of all lines in your current file. Type to narrow down to matching lines. Hit enter to move your cursor to the selected line.
 
-![Screen Recording 2023-06-10 at 16 24 58](https://github.com/brumm/vsc-extension-narrow/assets/170500/27022fb7-f522-4a49-9a26-e3c1af4c76d7)
+![using narrow to jump to a line](https://github.com/brumm/vsc-extension-narrow/assets/170500/27022fb7-f522-4a49-9a26-e3c1af4c76d7)
+
 
 Running `narrow.narrow-git` shows a QuickPick listing of all lines which were added since your last commit to quickly jump to your most recent work in a file.
+
+![using narrow to jump to a line which was added since the last commit](https://github.com/user-attachments/assets/ae1c38f7-b02a-4007-baa3-eda02fb464c8)
+
 
 ## Keyboard Shortcuts
 

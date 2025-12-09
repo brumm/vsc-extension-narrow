@@ -43,6 +43,11 @@ export const narrowFile = createNarrowCommand({
     return context.editor.document.getText(selection)
   },
 
+  getInitialActiveItem: (items, context) => {
+    const currentLine = context.editor.selection.active.line
+    return items.find((item) => item.index === currentLine)
+  },
+
   onPreview: previewLine,
   onAccept: acceptLine,
 })

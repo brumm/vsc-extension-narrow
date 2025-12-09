@@ -2,17 +2,15 @@ import * as Diff from 'diff'
 import * as path from 'path'
 import simpleGit from 'simple-git'
 import {
-  QuickPickItem,
   QuickPickItemKind,
   Selection,
-  TextEditor,
   TextEditorRevealType,
   ThemeIcon,
   window,
   workspace,
 } from 'vscode'
-import { createNarrowCommand, previewLine } from '../lib/createNarrowCommand'
 import { getOptions } from '../getOptions'
+import { createNarrowCommand, previewLine } from '../lib/createNarrowCommand'
 import { parseDiff } from '../lib/parseDiff'
 
 export const narrowGit = createNarrowCommand({
@@ -94,6 +92,12 @@ export const narrowGit = createNarrowCommand({
       }
     }
     return items
+  },
+
+  getInitialActiveItem: (items, context) => {
+    const currentLine = context.editor.selection.active.line
+    const newLocal = items.find((item) => item.index === currentLine)
+    return newLocal
   },
 
   onPreview: previewLine,

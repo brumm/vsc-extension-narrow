@@ -26,11 +26,21 @@ type InferItem<T> = T extends (context: any) => infer R
     : never
   : never
 
-type NarrowConfig<TSetup extends () => any, TPrepareItems extends (context: any) => any> = {
+type NarrowConfig<
+  TSetup extends () => any,
+  TPrepareItems extends (context: any) => any,
+> = {
   setup: TSetup
   prepareItems: TPrepareItems
   getInitialSearchTerm?: (context: InferContext<TSetup>) => string
-  onPreview: (item: InferItem<TPrepareItems>, context: InferContext<TSetup>) => void | Promise<void>
+  getInitialActiveItem?: (
+    items: InferItem<TPrepareItems>[],
+    context: InferContext<TSetup>,
+  ) => InferItem<TPrepareItems> | undefined
+  onPreview: (
+    item: InferItem<TPrepareItems>,
+    context: InferContext<TSetup>,
+  ) => void | Promise<void>
   onAccept: (
     item: InferItem<TPrepareItems>,
     context: InferContext<TSetup>,
@@ -52,8 +62,7 @@ export function previewLine<TContext extends { editor: TextEditor }>(
 ) {
   const { editor } = context
   const options = getOptions()
-  const REVEAL_TYPE =
-    TextEditorRevealType[options.activeLineViewportRevealType]
+  const REVEAL_TYPE = TextEditorRevealType[options.activeLineViewportRevealType]
 
   const lineRange = new Range(item.index, 0, item.index, item.label.length)
 
@@ -68,8 +77,7 @@ export function acceptLine<TContext extends { editor: TextEditor }>(
   options: ReturnType<typeof getOptions>,
 ) {
   const { editor } = context
-  const REVEAL_TYPE =
-    TextEditorRevealType[options.activeLineViewportRevealType]
+  const REVEAL_TYPE = TextEditorRevealType[options.activeLineViewportRevealType]
 
   const line = item.index
   let character = 0
@@ -166,9 +174,23 @@ export function createNarrowCommand<
       const items = await config.prepareItems(setupContext)
       quickPick.items = items
 
+      // Set initial active item
+      if (config.getInitialActiveItem) {
+        const initialActiveItem = config.getInitialActiveItem(
+          items,
+          setupContext,
+        )
+        if (initialActiveItem) {
+          quickPick.activeItems = [initialActiveItem]
+        }
+      }
+
       quickPick.busy = false
 
       let isFirstActiveChange = true
+
+      // Get editor reference for cleanup (if context has one)
+      const editorRef = (setupContext as any)?.editor as TextEditor | undefined
 
       // Event handlers
       context.subscriptions.push(
@@ -197,6 +219,11 @@ export function createNarrowCommand<
 
         quickPick.onDidHide(() => {
           quickPick.dispose()
+
+          // Clear decorations if we have an editor reference
+          if (editorRef) {
+            editorRef.setDecorations(decorationType, [])
+          }
         }),
       )
     }

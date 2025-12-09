@@ -1,19 +1,26 @@
-import { EndOfLine } from 'vscode'
-import { createNarrowCommand } from '../lib/createNarrowCommand'
+import { EndOfLine, QuickPickItem, TextEditor, window } from 'vscode'
+import {
+  acceptLine,
+  createNarrowCommand,
+  previewLine,
+} from '../lib/createNarrowCommand'
 import { getOptions } from '../getOptions'
 
-type FileContext = { eol: string }
-
-export const narrowFile = createNarrowCommand<FileContext>({
+export const narrowFile = createNarrowCommand({
   placeholder: 'Type to narrow file',
 
-  setup: (editor) => {
+  setup: () => {
+    const editor = window.activeTextEditor
+    if (!editor) {
+      return false
+    }
+
     const eol = editor.document.eol === EndOfLine.LF ? '\n' : '\r\n'
-    return { eol }
+    return { editor, eol }
   },
 
-  prepareItems: (editor, context) => {
-    return editor.document
+  prepareItems: (context) => {
+    return context.editor.document
       .getText()
       .split(context.eol)
       .map((line, index) => ({
@@ -23,14 +30,19 @@ export const narrowFile = createNarrowCommand<FileContext>({
       .filter(({ label }) => Boolean(label.trim()))
   },
 
-  getInitialSearchTerm: (editor) => {
+  getInitialSearchTerm: (context) => {
     const options = getOptions()
-    const selection = editor.selection
+    const selection = context.editor.selection
 
     if (selection.isEmpty && options.useWordUnderCursorAsInitialSearchTerm) {
-      const range = editor.document.getWordRangeAtPosition(selection.active)
-      return range ? editor.document.getText(range) : ''
+      const range = context.editor.document.getWordRangeAtPosition(
+        selection.active,
+      )
+      return range ? context.editor.document.getText(range) : ''
     }
-    return editor.document.getText(selection)
+    return context.editor.document.getText(selection)
   },
+
+  onPreview: previewLine,
+  onAccept: acceptLine,
 })

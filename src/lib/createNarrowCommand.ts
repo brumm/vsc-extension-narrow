@@ -6,26 +6,37 @@ import {
   TextEditor,
   TextEditorRevealType,
   ThemeColor,
+  Uri,
   window,
+  workspace,
 } from 'vscode'
 import { getOptions } from '../getOptions'
 
-export type NarrowItem = { index: number } & QuickPickItem
+type InferContext<T> = T extends () => infer R
+  ? R extends Promise<infer U>
+    ? Exclude<U, false>
+    : Exclude<R, false>
+  : never
 
-type NarrowConfig<TContext = void> = {
-  setup?: (
-    editor: TextEditor,
-  ) => Promise<boolean | TContext | void> | boolean | TContext | void
-  prepareItems: (
-    editor: TextEditor,
-    context: TContext,
-  ) => Promise<NarrowItem[]> | NarrowItem[]
-  getInitialSearchTerm?: (editor: TextEditor, context: TContext) => string
-  getCursorPosition?: (
-    item: NarrowItem,
+type InferItem<T> = T extends (context: any) => infer R
+  ? R extends Promise<Array<infer U>>
+    ? U
+    : R extends Array<infer U>
+    ? U
+    : never
+  : never
+
+type NarrowConfig<TSetup extends () => any, TPrepareItems extends (context: any) => any> = {
+  setup: TSetup
+  prepareItems: TPrepareItems
+  getInitialSearchTerm?: (context: InferContext<TSetup>) => string
+  onPreview: (item: InferItem<TPrepareItems>, context: InferContext<TSetup>) => void | Promise<void>
+  onAccept: (
+    item: InferItem<TPrepareItems>,
+    context: InferContext<TSetup>,
     searchValue: string,
     options: ReturnType<typeof getOptions>,
-  ) => { line: number; character: number }
+  ) => void | Promise<void>
   placeholder?: string
 }
 
@@ -34,40 +45,113 @@ const decorationType = window.createTextEditorDecorationType({
   isWholeLine: true,
 })
 
-export function createNarrowCommand<TContext = void>(
-  config: NarrowConfig<TContext>,
+// Helper functions for common preview/accept behaviors
+export function previewLine<TContext extends { editor: TextEditor }>(
+  item: QuickPickItem & { index: number },
+  context: TContext,
 ) {
+  const { editor } = context
+  const options = getOptions()
+  const REVEAL_TYPE =
+    TextEditorRevealType[options.activeLineViewportRevealType]
+
+  const lineRange = new Range(item.index, 0, item.index, item.label.length)
+
+  editor.setDecorations(decorationType, [lineRange])
+  editor.revealRange(lineRange, REVEAL_TYPE)
+}
+
+export function acceptLine<TContext extends { editor: TextEditor }>(
+  item: QuickPickItem & { index: number },
+  context: TContext,
+  searchValue: string,
+  options: ReturnType<typeof getOptions>,
+) {
+  const { editor } = context
+  const REVEAL_TYPE =
+    TextEditorRevealType[options.activeLineViewportRevealType]
+
+  const line = item.index
+  let character = 0
+
+  switch (options.cursorLocationAfterAccept) {
+    case 'startOfLine': {
+      character = 0
+      break
+    }
+    case 'startOfLineIgnoreWhitespace': {
+      const leadingWhitespaceLength =
+        item.label.length - item.label.trimStart().length
+      character = leadingWhitespaceLength
+      break
+    }
+    case 'startOfMatch': {
+      const matchPosition = item.label
+        .toLocaleLowerCase()
+        .indexOf(searchValue.toLocaleLowerCase())
+      character = matchPosition === -1 ? 0 : matchPosition
+      break
+    }
+  }
+
+  const newSelection = new Selection(line, character, line, character)
+  editor.selection = newSelection
+  editor.revealRange(newSelection, REVEAL_TYPE)
+}
+
+export async function previewFile<TContext>(
+  item: QuickPickItem & { filePath: string },
+  context: TContext,
+) {
+  if (!item.filePath) {
+    return
+  }
+
+  try {
+    const doc = await workspace.openTextDocument(Uri.file(item.filePath))
+    await window.showTextDocument(doc, { preview: true, preserveFocus: true })
+  } catch {
+    // File might not exist
+  }
+}
+
+export async function acceptFile<TContext>(
+  item: QuickPickItem & { filePath: string },
+  context: TContext,
+) {
+  if (!item.filePath) {
+    return
+  }
+
+  try {
+    const doc = await workspace.openTextDocument(Uri.file(item.filePath))
+    await window.showTextDocument(doc, { preview: false })
+  } catch {
+    window.showErrorMessage(`Could not open file: ${item.label}`)
+  }
+}
+
+export function createNarrowCommand<
+  TSetup extends () => any,
+  TPrepareItems extends (context: InferContext<TSetup>) => any,
+>(config: NarrowConfig<TSetup, TPrepareItems>) {
   return (context: ExtensionContext) => {
     return async (...commandArgs: any) => {
-      const editor = window.activeTextEditor
-      if (!editor) {
+      // Setup phase - acquire context
+      const setupContext = await config.setup()
+      if (setupContext === false) {
         return
       }
 
-      // Setup phase - can validate and provide context
-      let setupContext: TContext | undefined
-      if (config.setup) {
-        const result = await config.setup(editor)
-        if (result === false) {
-          return
-        }
-        // If setup returns an object, use it as context
-        if (result !== true && result !== undefined) {
-          setupContext = result as TContext
-        }
-      }
-
       const options = getOptions()
-      const REVEAL_TYPE =
-        TextEditorRevealType[options.activeLineViewportRevealType]
 
       // Initial search term
       const initialInputValue = config.getInitialSearchTerm
-        ? config.getInitialSearchTerm(editor, setupContext as TContext)
+        ? config.getInitialSearchTerm(setupContext)
         : ''
 
       // Create QuickPick
-      const quickPick = window.createQuickPick<NarrowItem>()
+      const quickPick = window.createQuickPick<InferItem<TPrepareItems>>()
       quickPick.placeholder = config.placeholder || 'Type to narrow'
       quickPick.value = initialInputValue
       quickPick.matchOnDescription = false
@@ -79,58 +163,12 @@ export function createNarrowCommand<TContext = void>(
       quickPick.show()
 
       // Prepare items
-      const items = await config.prepareItems(editor, setupContext as TContext)
+      const items = await config.prepareItems(setupContext)
       quickPick.items = items
-
-      // Set initial active item
-      const initialActiveItem = items.find(
-        (item) => item.index === editor.selection.active.line,
-      )
-      if (initialActiveItem) {
-        quickPick.activeItems = [initialActiveItem]
-      }
 
       quickPick.busy = false
 
-      // State management
-      const selectionAtActivation = editor.selection
-      let newSelection = selectionAtActivation
       let isFirstActiveChange = true
-
-      // Default cursor position strategy (respects config)
-      const defaultGetCursorPosition = (
-        item: NarrowItem,
-        searchValue: string,
-        options: ReturnType<typeof getOptions>,
-      ) => {
-        const line = item.index
-        let character = 0
-
-        switch (options.cursorLocationAfterAccept) {
-          case 'startOfLine': {
-            character = 0
-            break
-          }
-          case 'startOfLineIgnoreWhitespace': {
-            const leadingWhitespaceLength =
-              item.label.length - item.label.trimStart().length
-            character = leadingWhitespaceLength
-            break
-          }
-          case 'startOfMatch': {
-            const matchPosition = item.label
-              .toLocaleLowerCase()
-              .indexOf(searchValue.toLocaleLowerCase())
-            character = matchPosition === -1 ? 0 : matchPosition
-            break
-          }
-        }
-
-        return { line, character }
-      }
-
-      const getCursorPosition =
-        config.getCursorPosition || defaultGetCursorPosition
 
       // Event handlers
       context.subscriptions.push(
@@ -140,50 +178,25 @@ export function createNarrowCommand<TContext = void>(
             return
           }
 
-          if (!editor || !item) {
+          if (!item) {
             return
           }
 
-          const startLine = item.index
-          const startCharacter = 0
-          const endLine = item.index
-          const endCharacter = item.label.length
-
-          const lineRange = new Range(
-            startLine,
-            startCharacter,
-            endLine,
-            endCharacter,
-          )
-
-          editor.setDecorations(decorationType, [lineRange])
-          editor.revealRange(lineRange, REVEAL_TYPE)
-
-          isFirstActiveChange = false
-        }),
-
-        quickPick.onDidChangeSelection(([item]) => {
-          const { line, character } = getCursorPosition(
-            item,
-            quickPick.value,
-            options,
-          )
-          newSelection = new Selection(line, character, line, character)
+          config.onPreview(item, setupContext)
         }),
 
         quickPick.onDidAccept(() => {
-          editor.selection = newSelection
-          editor.revealRange(editor.selection, REVEAL_TYPE)
+          const [item] = quickPick.selectedItems
+          if (!item) {
+            return
+          }
+
+          config.onAccept(item, setupContext, quickPick.value, options)
           quickPick.hide()
         }),
 
         quickPick.onDidHide(() => {
           quickPick.dispose()
-          editor.setDecorations(decorationType, [])
-
-          if (editor.selection.isEqual(selectionAtActivation)) {
-            editor.revealRange(editor.selection, REVEAL_TYPE)
-          }
         }),
       )
     }

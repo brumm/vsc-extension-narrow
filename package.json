@@ -97,6 +97,10 @@
         "title": "Narrow Git Additions"
       },
       {
+        "command": "narrow.narrow-git-files",
+        "title": "Narrow Git Changed Files"
+      },
+      {
         "command": "narrow.narrow-problems",
         "title": "Narrow Problems"
       }
@@ -111,6 +115,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/diff": "^8.0.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
@@ -124,6 +129,7 @@
     "typescript": "^5.2.0"
   },
   "dependencies": {
+    "diff": "^8.0.2",
     "parse-diff": "^0.11.1",
     "simple-git": "^3.26.0"
   }

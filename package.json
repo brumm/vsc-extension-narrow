@@ -95,6 +95,10 @@
       {
         "command": "narrow.narrow-git",
         "title": "Narrow Git Additions"
+      },
+      {
+        "command": "narrow.narrow-problems",
+        "title": "Narrow Problems"
       }
     ]
   },
